@@ -19,6 +19,29 @@ class CartItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dismissible(
+      confirmDismiss: (_) {
+        return showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: Text('Are You Sure?'),
+            content: Text('Do you want to delete this product from the cart?'),
+            actions: [
+              FlatButton(
+                onPressed: () {
+                  Navigator.of(ctx).pop(false);
+                },
+                child: Text('NO'),
+              ),
+              FlatButton(
+                onPressed: () {
+                  Navigator.of(ctx).pop(true);
+                },
+                child: Text('YES'),
+              ),
+            ],
+          ),
+        );
+      },
       key: ValueKey(id),
       direction: DismissDirection.endToStart,
       background: Container(
@@ -59,7 +82,7 @@ class CartItem extends StatelessWidget {
               backgroundColor: Theme.of(context).primaryColor,
             ),
             title: Text(title),
-            subtitle: Text('Total: ${price * quantity}'),
+            subtitle: Text('Total: ${(price * quantity).toStringAsFixed(2)}'),
             trailing: Text('$quantity x'),
           ),
         ),

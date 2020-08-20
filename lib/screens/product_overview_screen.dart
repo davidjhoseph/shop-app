@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 
 import '../widgets/product_grid.dart';
 import '../widgets/badge.dart';
+import '../widgets/side_drawer.dart';
+
 import '../providers/cart.dart';
 import './cart_screen.dart';
 
@@ -22,6 +24,7 @@ class _ProductOverviewScreenState extends State<ProductOverviewScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: SideDrawer(),
       appBar: AppBar(
         title: Text('My Shop'),
         actions: [
