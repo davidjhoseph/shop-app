@@ -70,7 +70,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
     }
   }
 
-  void _submitForm() {
+  void _submitForm() async {
     final isValid = _form.currentState.validate();
     if (!isValid) {
       return;
@@ -80,13 +80,30 @@ class _EditProductScreenState extends State<EditProductScreen> {
       _isLoading = true;
     });
     if (_product.id != null) {
-      Provider.of<Products>(context, listen: false)
+      await Provider.of<Products>(context, listen: false)
           .updateProduct(_product.id, _product);
       Navigator.of(context).pop();
     } else {
       Provider.of<Products>(context, listen: false)
           .addProduct(_product)
-          .then((_) {
+          .catchError((onError) {
+        return showDialog<Null>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: Text('sorry, there was an error!'),
+            content: Text(
+                'Please make sure your internet connection works properly'),
+            actions: [
+              FlatButton(
+                child: Text('Okay'),
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                },
+              ),
+            ],
+          ),
+        );
+      }).then((_) {
         // Scaffold.of(context).showSnackBar(
         //   SnackBar(
         //     content: Text(
@@ -96,6 +113,9 @@ class _EditProductScreenState extends State<EditProductScreen> {
         //     duration: Duration(seconds: 3),
         //   ),
         // );
+        setState(() {
+          _isLoading = false;
+        });
         Navigator.of(context).pop();
       });
     }
