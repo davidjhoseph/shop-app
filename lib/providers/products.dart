@@ -132,6 +132,10 @@ class Products with ChangeNotifier {
   }
 
   void deleteProduct(String id) {
+    final url =
+        'https://flutter-shop-app-1346f.firebaseio.com/products/$id.json';
+    http.delete(url);
+    notifyListeners();
     _items.removeWhere((prod) => prod.id == id);
     notifyListeners();
   }
