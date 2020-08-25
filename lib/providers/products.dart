@@ -66,11 +66,13 @@ class Products with ChangeNotifier {
       gottenProducts.forEach((productId, productData) {
         loadedProducts.add(
           Product(
-              description: productData['description'],
-              id: productId,
-              price: productData['price'],
-              imageUrl: productData['imageUrl'],
-              title: productData['title']),
+            description: productData['description'],
+            id: productId,
+            price: productData['price'],
+            imageUrl: productData['imageUrl'],
+            title: productData['title'],
+            isFavorite: productData['isFavorite'],
+          ),
         );
       });
       _items = loadedProducts;
