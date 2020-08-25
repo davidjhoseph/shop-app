@@ -87,24 +87,27 @@ class _OrderButtonState extends State<OrderButton> {
   @override
   Widget build(BuildContext context) {
     return FlatButton(
-      onPressed: () async {
+      onPressed: () {
         setState(() {
           _isLoading = true;
         });
-        await Provider.of<Order>(context, listen: false).addOrder(
+        Provider.of<Order>(context, listen: false)
+            .addOrder(
           widget.cart.items.values.toList(),
           widget.cart.cartTotal,
-        );
-        setState(() {
-          _isLoading = false;
+        )
+            .then((_) {
+          setState(() {
+            _isLoading = false;
+          });
+          Scaffold.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Order has been Placed'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+          widget.cart.clear();
         });
-        Scaffold.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Order has been Placed'),
-            duration: Duration(seconds: 2),
-          ),
-        );
-        widget.cart.clear();
       },
       child: _isLoading
           ? CircularProgressIndicator()
