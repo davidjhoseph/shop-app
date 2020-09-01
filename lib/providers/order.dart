@@ -18,6 +18,8 @@ class OrderItem {
 }
 
 class Order with ChangeNotifier {
+  String token;
+  Order(this._orders, {this.token});
   List<OrderItem> _orders = [];
 
   List<OrderItem> get orders {
@@ -25,7 +27,8 @@ class Order with ChangeNotifier {
   }
 
   Future<void> addOrder(List<CartItem> cartProducts, double amount) async {
-    const url = 'https://flutter-shop-app-1346f.firebaseio.com/orders.json';
+    final url =
+        'https://flutter-shop-app-1346f.firebaseio.com/orders.json?auth=$token';
     final initialDate = DateTime.now();
 
     final response = await http.post(
@@ -56,6 +59,40 @@ class Order with ChangeNotifier {
         dateTime: initialDate,
       ),
     );
+    notifyListeners();
+  }
+
+  Future<void> fetchAndSetOrders() async {
+    final url =
+        'https://flutter-shop-app-1346f.firebaseio.com/orders.json?auth=$token';
+    final response = await http.get(url);
+    final extractedData = json.decode(response.body) as Map<String, dynamic>;
+    if (extractedData == null) {
+      return;
+    }
+    List<OrderItem> loadedOrders = [];
+    extractedData.forEach((orderId, orderData) {
+      loadedOrders.add(
+        OrderItem(
+          amount: orderData['amount'],
+          id: orderId,
+          products: (orderData['products'] as List<dynamic>)
+              .map(
+                (prod) => CartItem(
+                  id: prod['id'],
+                  title: prod['title'],
+                  quantity: prod['quantity'],
+                  price: prod['price'],
+                ),
+              )
+              .toList(),
+          dateTime: DateTime.parse(
+            orderData['dateTime'],
+          ),
+        ),
+      );
+    });
+    _orders = loadedOrders.reversed.toList();
     notifyListeners();
   }
 }
