@@ -28,8 +28,10 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProxyProvider<Auth, Products>(
           create: (context) => Products([]),
           update: (ctx, auth, previousProducts) => Products(
-              previousProducts.items == null ? [] : previousProducts.items,
-              authToken: auth.token),
+            previousProducts.items == null ? [] : previousProducts.items,
+            authToken: auth.token,
+            userId: auth.userId,
+          ),
         ),
         ChangeNotifierProvider(
           create: (ctx) => Cart(),
@@ -37,8 +39,10 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProxyProvider<Auth, Order>(
           create: (ctx) => Order([]),
           update: (ctx, auth, previousOrders) => Order(
-              previousOrders != null ? previousOrders.orders : [],
-              token: auth.token),
+            previousOrders != null ? previousOrders.orders : [],
+            token: auth.token,
+            userId: auth.userId,
+          ),
         ),
       ],
       child: Consumer<Auth>(
@@ -50,7 +54,16 @@ class MyApp extends StatelessWidget {
             accentColor: Colors.deepOrange,
             fontFamily: 'Lato',
           ),
-          home: auth.isAuth ? ProductOverviewScreen() : AuthScreen(),
+          home: auth.isAuth
+              ? ProductOverviewScreen()
+              : FutureBuilder(
+                  future: auth.tryAutoLogin(),
+                  builder: (ctx, authSnapshot) =>
+                      authSnapshot.connectionState == ConnectionState.waiting
+                          ? Center(
+                              child: CircularProgressIndicator(),
+                            )
+                          : AuthScreen()),
           routes: {
             ProductDetailScreen.routeName: (ctx) => ProductDetailScreen(),
             CartScreen.routeName: (ctx) => CartScreen(),

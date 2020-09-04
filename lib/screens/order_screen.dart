@@ -13,10 +13,9 @@ class OrderScreen extends StatefulWidget {
 }
 
 class _OrderScreenState extends State<OrderScreen> {
-  @override
   var _isLoading = false;
+  @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     Future.delayed(
       Duration(seconds: 1),

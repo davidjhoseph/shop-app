@@ -5,10 +5,9 @@ import './product.dart';
 
 class Products with ChangeNotifier {
   String authToken;
-  Products(
-    this._items, {
-    this.authToken,
-  });
+  String userId;
+
+  Products(this._items, {this.authToken, this.userId});
   List<Product> _items = [
     // Product(
     //   id: 'p1',
@@ -62,12 +61,21 @@ class Products with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> fetchAndSetProducts() async {
-    final url =
-        'https://flutter-shop-app-1346f.firebaseio.com/products.json?auth=$authToken';
+  Future<void> fetchAndSetProducts([bool filterByUser = false]) async {
+    var url = filterByUser
+        ? 'https://flutter-shop-app-1346f.firebaseio.com/products.json?auth=$authToken&orderBy="creatorId"&equalTo="$userId"'
+        : 'https://flutter-shop-app-1346f.firebaseio.com/products.json?auth=$authToken';
     try {
       final response = await http.get(url);
       final gottenProducts = json.decode(response.body) as Map<String, dynamic>;
+      if (gottenProducts == null) {
+        return;
+      }
+      url =
+          'https://flutter-shop-app-1346f.firebaseio.com/userProducts/$userId/.json?auth=$authToken';
+
+      final favoriteResponse = await http.get(url);
+      final favoriteData = json.decode(favoriteResponse.body);
       final List<Product> loadedProducts = [];
       gottenProducts.forEach((productId, productData) {
         loadedProducts.add(
@@ -77,7 +85,8 @@ class Products with ChangeNotifier {
             price: productData['price'],
             imageUrl: productData['imageUrl'],
             title: productData['title'],
-            isFavorite: productData['isFavorite'],
+            isFavorite:
+                favoriteData == null ? false : favoriteData[productId] ?? false,
           ),
         );
       });
@@ -99,8 +108,8 @@ class Products with ChangeNotifier {
           'title': product.title,
           'price': product.price,
           'description': product.description,
-          'isFavorite': product.isFavorite,
           'imageUrl': product.imageUrl,
+          'creratorId': userId
         },
       ),
     )
